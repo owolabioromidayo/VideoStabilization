@@ -3,14 +3,14 @@ import numpy as np
 from skimage.measure import ransac
 from skimage.transform import AffineTransform
 
-RANSAC_RESIDUAL_THRES = 5
+RANSAC_RESIDUAL_THRES = 3
 RANSAC_MAX_TRIALS = 200
 
 class VideoStabilizer:
     def __init__(self, VIDEO_PATH):
         self.VIDEO_PATH = VIDEO_PATH
         self.WINDOW_NAME = "Video Stabilizer"
-        self.orb = cv2.ORB_create(nfeatures=800)
+        self.orb = cv2.ORB_create(nfeatures=400)
 
         self.loop()
 
@@ -45,9 +45,8 @@ class VideoStabilizer:
                 frame = cv2.drawKeypoints(frame, nkp, None, color=(0,0,255), flags=0)
                 
                 if model:
-                    model = cv2.getAffineTransform(kp_prev[:3], kp[:3])
-                    print(model)
-                    _frame = cv2.warpAffine(prev_frame, np.array(model)[:3].astype(np.float32), dsize=(500,500))
+                    model = np.array(model).astype(np.float32)[:2]
+                    _frame = cv2.warpAffine(prev_frame, model, dsize=(500,500))
                     _frame = cv2.resize(_frame, (500, 500))
 
                     cv2.imshow("Smoothed Video", _frame)
